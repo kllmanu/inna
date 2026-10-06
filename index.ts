@@ -1,5 +1,41 @@
 import './style.css';
 
+interface QuaternionLike {
+  invert(): QuaternionLike;
+  multiply(quaternion: QuaternionLike): QuaternionLike;
+}
+
+interface Object3DLike {
+  quaternion: { copy(quaternion: QuaternionLike): void };
+  parent: { getWorldQuaternion(target: QuaternionLike): QuaternionLike } | null;
+  getWorldQuaternion(target: QuaternionLike): QuaternionLike;
+}
+
+interface AFrameLike {
+  THREE: { Quaternion: new () => QuaternionLike };
+  registerComponent(
+    name: string,
+    definition: { tick(this: { el: { object3D: Object3DLike; sceneEl: { camera?: Object3DLike } } }): void },
+  ): void;
+}
+
+const aframe = (window as Window & { AFRAME?: AFrameLike }).AFRAME;
+if (aframe) {
+  aframe.registerComponent('camera-facing', {
+    tick() {
+      const camera = this.el.sceneEl.camera;
+      if (!camera) return;
+
+      const cameraQuaternion = camera.getWorldQuaternion(new aframe.THREE.Quaternion());
+      const parent = this.el.object3D.parent;
+      const localQuaternion = parent
+        ? parent.getWorldQuaternion(new aframe.THREE.Quaternion()).invert().multiply(cameraQuaternion)
+        : cameraQuaternion;
+      this.el.object3D.quaternion.copy(localQuaternion);
+    },
+  });
+}
+
 const sceneTemplate = document.querySelector<HTMLTemplateElement>('#ar-scene-template');
 const cameraButton = document.querySelector<HTMLButtonElement>('#camera-start');
 const cameraHeading = document.querySelector<HTMLElement>('#camera-heading');

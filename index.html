@@ -24,17 +24,30 @@
     <template id="ar-scene-template">
       <a-scene embedded renderer="alpha: true" arjs="sourceType: webcam; debugUIEnabled: false;">
         <a-marker preset="hiro">
-          <a-box
-            position="0 0.5 0"
-            material="color: #f06449; roughness: 0.35;"
-            animation="property: rotation; to: 0 360 0; loop: true; dur: 5000; easing: linear"
-          ></a-box>
+          <a-entity position="0 0.15 0" scale="1.8 1.8 1.8">
+            <a-cylinder
+              position="0 0 0"
+              rotation="0 0 -90"
+              radius="0.045"
+              height="0.75"
+              material="color: #ffdc5f; roughness: 0.35;"
+            ></a-cylinder>
+            <a-cone
+              position="0.55 0 0"
+              rotation="0 0 -90"
+              radius-bottom="0.15"
+              radius-top="0"
+              height="0.36"
+              material="color: #ffdc5f; roughness: 0.35;"
+            ></a-cone>
+          </a-entity>
           <a-text
-            value="Hello, world!"
+            camera-facing
+            value="U310"
             align="center"
             color="#ffffff"
-            position="0 1.25 0"
-            scale="1.2 1.2 1.2"
+            position="0 0.85 0"
+            scale="0.7 0.7 0.7"
           ></a-text>
         </a-marker>
         <a-entity camera></a-entity>
