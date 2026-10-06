@@ -15,7 +15,12 @@
       </div>
     </header>
 
-    <a-scene embedded renderer="alpha: true" arjs="sourceType: webcam; debugUIEnabled: false;">
+    <main id="camera-fallback" class="camera-fallback" aria-live="polite">
+      <h1>Camera unavailable</h1>
+      <p>This experience needs camera access.</p>
+    </main>
+
+    <a-scene embedded renderer="alpha: true">
       <a-marker preset="hiro">
         <a-box
           position="0 0.5 0"

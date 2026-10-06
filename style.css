@@ -51,6 +51,39 @@ a-scene {
   width: 100vw;
   height: calc(100vh - 78px);
   height: calc(100dvh - 78px);
+  visibility: hidden;
+}
+
+.camera-ready a-scene {
+  visibility: visible;
+}
+
+.camera-fallback {
+  display: none;
+  position: fixed;
+  inset: 78px 0 0;
+  z-index: 2;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px;
+  background: #f3f5f3;
+  color: #18211b;
+  text-align: center;
+}
+
+.camera-fallback h1,
+.camera-fallback p {
+  margin: 0;
+}
+
+.camera-fallback p {
+  max-width: 32rem;
+}
+
+.camera-unavailable .camera-fallback {
+  display: flex;
 }
 
 a-scene .a-canvas {
