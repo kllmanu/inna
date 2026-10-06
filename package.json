@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "rsync": "rsync -avz --progress dist/ U328:/home/u328/html/",
+    "rsync": "rsync -avz --progress dist/ inna:/home/inna/html/",
+	"push": "npm run build && npm run rsync", 
     "preview": "vite preview"
   },
   "devDependencies": {
