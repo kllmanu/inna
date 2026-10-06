@@ -4,39 +4,42 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#101612" />
-    <title>Nava AR Hello</title>
+    <title>INNA</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.7/aframe/build/aframe-ar.js"></script>
   </head>
   <body>
     <header class="fhv-header" aria-label="FHV header">
-      <div class="fhv-logo" aria-label="FHV logo">
+      <a class="fhv-logo" href="/" aria-label="INNA home">
         <span>INNA</span>
-      </div>
+      </a>
     </header>
 
     <main id="camera-fallback" class="camera-fallback" aria-live="polite">
-      <h1>Camera unavailable</h1>
-      <p>This experience needs camera access.</p>
+      <h1 id="camera-heading">Indoor navigation</h1>
+      <p id="camera-message">Enable camera access to start the experience.</p>
+      <button id="camera-start" type="button">Enable camera</button>
     </main>
 
-    <a-scene embedded renderer="alpha: true">
-      <a-marker preset="hiro">
-        <a-box
-          position="0 0.5 0"
-          material="color: #f06449; roughness: 0.35;"
-          animation="property: rotation; to: 0 360 0; loop: true; dur: 5000; easing: linear"
-        ></a-box>
-        <a-text
-          value="Hello, world!"
-          align="center"
-          color="#ffffff"
-          position="0 1.25 0"
-          scale="1.2 1.2 1.2"
-        ></a-text>
-      </a-marker>
-      <a-entity camera></a-entity>
-    </a-scene>
+    <template id="ar-scene-template">
+      <a-scene embedded renderer="alpha: true" arjs="sourceType: webcam; debugUIEnabled: false;">
+        <a-marker preset="hiro">
+          <a-box
+            position="0 0.5 0"
+            material="color: #f06449; roughness: 0.35;"
+            animation="property: rotation; to: 0 360 0; loop: true; dur: 5000; easing: linear"
+          ></a-box>
+          <a-text
+            value="Hello, world!"
+            align="center"
+            color="#ffffff"
+            position="0 1.25 0"
+            scale="1.2 1.2 1.2"
+          ></a-text>
+        </a-marker>
+        <a-entity camera></a-entity>
+      </a-scene>
+    </template>
     <script type="module" src="/index.ts"></script>
   </body>
 </html>
