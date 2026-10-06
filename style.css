@@ -8,34 +8,68 @@ body {
   height: 100%;
   margin: 0;
   overflow: hidden;
-  background: #101612;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.fhv-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  height: 78px;
+  background: #97cff1;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  border-bottom: 1px solid rgba(13, 54, 85, 0.08);
+}
+
+.fhv-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 90px;
+  height: 42px;
+  padding: 0 12px;
+  border-radius: 10px;
+}
+
+.fhv-logo span {
+  font-size: 2rem;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  font-weight: 800;
+  color: #0f3555;
 }
 
 a-scene {
   position: fixed;
-  inset: 0;
+  top: 78px;
+  left: 0;
   z-index: 1;
   width: 100vw;
-  height: 100vh;
-  height: 100dvh;
+  height: calc(100vh - 78px);
+  height: calc(100dvh - 78px);
 }
 
 a-scene .a-canvas {
   position: fixed !important;
-  inset: 0 !important;
+  top: 78px !important;
+  left: 0 !important;
   width: 100vw !important;
-  height: 100vh !important;
-  height: 100dvh !important;
+  height: calc(100vh - 78px) !important;
+  height: calc(100dvh - 78px) !important;
 }
 
 #arjs-video {
   position: fixed !important;
-  top: 0 !important;
+  top: 78px !important;
   left: 0 !important;
   z-index: 0 !important;
   width: 100vw !important;
-  height: 100vh !important;
-  height: 100dvh !important;
+  height: calc(100vh - 78px) !important;
+  height: calc(100dvh - 78px) !important;
   margin: 0 !important;
   object-fit: contain;
   object-position: center top;
