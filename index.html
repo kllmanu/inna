@@ -24,23 +24,10 @@
     <template id="ar-scene-template">
       <a-scene embedded renderer="alpha: true" arjs="sourceType: webcam; debugUIEnabled: false;">
         <a-marker preset="hiro">
-          <a-entity position="0 0.15 0" scale="1.8 1.8 1.8">
-            <a-cylinder
-              position="0 0 0"
-              rotation="0 0 -90"
-              radius="0.045"
-              height="0.75"
-              material="color: #ffdc5f; roughness: 0.35;"
-            ></a-cylinder>
-            <a-cone
-              position="0.55 0 0"
-              rotation="0 0 -90"
-              radius-bottom="0.15"
-              radius-top="0"
-              height="0.36"
-              material="color: #ffdc5f; roughness: 0.35;"
-            ></a-cone>
-          </a-entity>
+          <a-entity
+            position="0 0.15 0"
+            direction-arrow="length: 1; direction: 1 0 0; color: green"
+          ></a-entity>
         </a-marker>
         <a-entity camera></a-entity>
       </a-scene>

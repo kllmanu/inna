@@ -1,37 +1,117 @@
 import './style.css';
 
-interface QuaternionLike {
-  invert(): QuaternionLike;
-  multiply(quaternion: QuaternionLike): QuaternionLike;
+interface Vector3Like {
+  x: number;
+  y: number;
+  z: number;
+  lengthSq(): number;
+  normalize(): Vector3Like;
 }
 
-interface Object3DLike {
-  quaternion: { copy(quaternion: QuaternionLike): void };
-  parent: { getWorldQuaternion(target: QuaternionLike): QuaternionLike } | null;
-  getWorldQuaternion(target: QuaternionLike): QuaternionLike;
+interface QuaternionLike {
+  copy(quaternion: QuaternionLike): void;
+  setFromUnitVectors(from: Vector3Like, to: Vector3Like): QuaternionLike;
+}
+
+type ArrowColor = 'red' | 'yellow' | 'green';
+
+interface ArrowData {
+  length: number;
+  direction: Vector3Like;
+  color: ArrowColor;
+}
+
+interface ArrowEntity extends HTMLElement {
+  object3D: { position: Vector3Like; quaternion: QuaternionLike };
+}
+
+interface ArrowComponentInstance {
+  data: ArrowData;
+  el: ArrowEntity;
+  originPosition: { x: number; y: number; z: number };
+  shaft: HTMLElement;
+  head: HTMLElement;
 }
 
 interface AFrameLike {
-  THREE: { Quaternion: new () => QuaternionLike };
+  THREE: {
+    Quaternion: new () => QuaternionLike;
+    Vector3: new (x: number, y: number, z: number) => Vector3Like;
+  };
   registerComponent(
     name: string,
-    definition: { tick(this: { el: { object3D: Object3DLike; sceneEl: { camera?: Object3DLike } } }): void },
+    definition: {
+      schema: {
+        length: { type: 'number'; default: number };
+        direction: { type: 'vec3'; default: string };
+        color: { type: 'string'; default: ArrowColor; oneOf: ArrowColor[] };
+      };
+      init(this: ArrowComponentInstance): void;
+      update(this: ArrowComponentInstance): void;
+    },
   ): void;
 }
 
 const aframe = (window as Window & { AFRAME?: AFrameLike }).AFRAME;
 if (aframe) {
-  aframe.registerComponent('camera-facing', {
-    tick() {
-      const camera = this.el.sceneEl.camera;
-      if (!camera) return;
+  const colors: Record<ArrowColor, string> = {
+    red: '#e53935',
+    yellow: '#ffdc5f',
+    green: '#43a047',
+  };
 
-      const cameraQuaternion = camera.getWorldQuaternion(new aframe.THREE.Quaternion());
-      const parent = this.el.object3D.parent;
-      const localQuaternion = parent
-        ? parent.getWorldQuaternion(new aframe.THREE.Quaternion()).invert().multiply(cameraQuaternion)
-        : cameraQuaternion;
-      this.el.object3D.quaternion.copy(localQuaternion);
+  aframe.registerComponent('direction-arrow', {
+    schema: {
+      length: { type: 'number', default: 1.3 },
+      direction: { type: 'vec3', default: '1 0 0' },
+      color: { type: 'string', default: 'yellow', oneOf: ['red', 'yellow', 'green'] },
+    },
+    init() {
+      const position = this.el.object3D.position;
+      this.originPosition = { x: position.x, y: position.y, z: position.z };
+      this.shaft = document.createElement('a-cylinder');
+      this.shaft.setAttribute('rotation', '0 0 -90');
+      this.head = document.createElement('a-cone');
+      this.head.setAttribute('rotation', '0 0 -90');
+      this.el.append(this.shaft, this.head);
+    },
+    update() {
+      const length = Math.max(0.01, this.data.length);
+      const shaftLength = length * 0.72;
+      const headLength = length * 0.28;
+      const widthScale = length / 1.3;
+      const direction = new aframe.THREE.Vector3(
+        this.data.direction.x,
+        this.data.direction.y,
+        this.data.direction.z,
+      );
+
+      if (direction.lengthSq() === 0) direction.x = 1;
+      direction.normalize();
+
+      this.el.object3D.quaternion.copy(
+        new aframe.THREE.Quaternion().setFromUnitVectors(
+          new aframe.THREE.Vector3(1, 0, 0),
+          direction,
+        ),
+      );
+      this.el.setAttribute(
+        'position',
+        `${this.originPosition.x - direction.x * length / 2} ${this.originPosition.y - direction.y * length / 2} ${this.originPosition.z - direction.z * length / 2}`,
+      );
+      this.shaft.setAttribute(
+        'geometry',
+        `primitive: cylinder; radius: ${0.08 * widthScale}; height: ${shaftLength}`,
+      );
+      this.shaft.setAttribute('position', `${shaftLength / 2} 0 0`);
+      const color = colors[this.data.color];
+      this.shaft.setAttribute('material', `color: ${color}; roughness: 0.35`);
+      this.head.setAttribute(
+        'geometry',
+        `primitive: cone; radiusBottom: ${0.27 * widthScale}; radiusTop: 0; height: ${headLength}`,
+      );
+      this.head.setAttribute('position', `${shaftLength + headLength / 2} 0 0`);
+      this.head.setAttribute('material', `color: ${color}; roughness: 0.35`);
     },
   });
 }
