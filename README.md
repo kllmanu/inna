@@ -20,7 +20,9 @@ A-Frame 1.7.1 loads from aframe.io; network access is required on first load.
 
 ## Record on site
 
-1. At U328, enter a track name, a destination room other than U328, an exact
+Route selection and **Create a track** are both available directly on the page.
+
+1. Open **Create a track**. At U328, enter a destination room other than U328, an exact
    repeatable starting floor spot, and a fixed feature to face. These are
    instructions you supply, not surveyed or verified locations.
 2. Select **Record in WebXR**. A compatible browser/device must support immersive
@@ -89,7 +91,7 @@ and stop if alignment drifts.
   fails. A changed storage value in another tab blocks writes until reload.
 - Downloads use Blob URLs, removed anchors and revoked URLs.
 - Exported file shape is exactly `{ "version": 1, "route": { … } }`.
-  A route has `id`, `name`, `start: "U328"`, `destination`,
+  A route has `id`, `start: "U328"`, `destination`,
   `instructions: { "spot": "...", "facing": "..." }`, and `points`.
   Points have finite meter coordinates `x`, `z` and `kind` equal to `arrow`,
   `turn` or `destination`. First point is `(0,0)`/`arrow`; only the last point
@@ -97,6 +99,8 @@ and stop if alignment drifts.
   New turning points also store `turn: "left"` or `turn: "right"`.
   Existing version-1 tracks without this optional field still load with a
   generic corner instruction. Directions are manually chosen, not inferred.
+  Legacy version-1 routes with a `name` still import; the name is discarded.
+  Routes are labeled by destination room only.
 - Unknown/missing fields, wrong versions, duplicate library IDs, invalid room
   text, incomplete/degenerate tracks, nonfinite coordinates, coordinates beyond
   ±500 m, more than 500 points and files above 1 MB are rejected.

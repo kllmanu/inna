@@ -68,10 +68,10 @@ function selected() { return library.find(route => route.id === selector.value);
 function refreshLibrary(selectId = selector.value) {
   selector.replaceChildren();
   if (!library.length) selector.add(new Option('No saved routes', ''));
-  for (const route of library) selector.add(new Option(`${route.destination} — ${route.name}`, route.id));
+  for (const route of library) selector.add(new Option(route.destination, route.id));
   if (library.some(route => route.id === selectId)) selector.value = selectId;
   const route = selected();
-  $('route-details').textContent = route ? `${route.points.length} points · ${segments(route).length} corridor segments. Start at U328: ${route.instructions.spot}. Face: ${route.instructions.facing}` : 'Record or import your first route.';
+  $('route-details').textContent = route ? `${route.points.length} points · ${segments(route).length} corridor segments. Start at U328: ${route.instructions.spot}. Face: ${route.instructions.facing}` : 'No routes saved yet. Import a route JSON file or create a track.';
   button('play').disabled = !route || !supported || starting;
   button('export').disabled = !route;
   button('delete').disabled = !route || storageBlocked;
@@ -79,7 +79,7 @@ function refreshLibrary(selectId = selector.value) {
   $('storage-recovery').hidden = !storageBlocked;
   button('export-storage').disabled = originalStorage === null;
   $('draft-panel').hidden = !draft;
-  $('draft-details').textContent = draft ? `${draft.name} → ${draft.destination} · ${draft.points.length} points. Starting spot: ${draft.instructions.spot}. Face: ${draft.instructions.facing}` : '';
+  $('draft-details').textContent = draft ? `U328 → ${draft.destination} · ${draft.points.length} points. Starting spot: ${draft.instructions.spot}. Face: ${draft.instructions.facing}` : '';
   button('save').disabled = storageBlocked || library.length >= MAX_ROUTES;
 }
 try {
@@ -121,7 +121,7 @@ button('clear-storage').onclick = () => {
 };
 button('delete').onclick = () => {
   const route = selected();
-  if (route && confirm(`Delete "${route.name}" locally? Export it first if you need a backup.`) && persist(library.filter(r => r.id !== route.id))) { message('Track deleted.'); refreshLibrary(); }
+  if (route && confirm(`Delete the route to "${route.destination}" locally? Export it first if you need a backup.`) && persist(library.filter(r => r.id !== route.id))) { message('Track deleted.'); refreshLibrary(); }
 };
 button('save').onclick = () => {
   if (!draft) return;
@@ -153,7 +153,7 @@ async function probe() {
 }
 void probe();
 function newRoute(): Route {
-  return { id: crypto.randomUUID(), name: input('track-name').value.trim(), start: 'U328', destination: input('destination').value.trim(), instructions: { spot: input('start-spot').value.trim(), facing: input('start-facing').value.trim() }, points: [{ x: 0, z: 0, kind: 'arrow' }, { x: 0, z: -1, kind: 'destination' }] };
+  return { id: crypto.randomUUID(), start: 'U328', destination: input('destination').value.trim(), instructions: { spot: input('start-spot').value.trim(), facing: input('start-facing').value.trim() }, points: [{ x: 0, z: 0, kind: 'arrow' }, { x: 0, z: -1, kind: 'destination' }] };
 }
 $('record-form').addEventListener('submit', event => {
   event.preventDefault();
@@ -237,7 +237,7 @@ function frameLoop(_time: number, frame: Frame) {
 }
 function xrUI(status?: string) {
   const recording = mode === 'record', calibrated = !!calibration;
-  $('xr-title').textContent = `${recording ? 'Record' : 'Walk'} · ${activeRoute?.name ?? ''}`;
+  $('xr-title').textContent = `${recording ? 'Record' : 'Walk'} · U328 → ${activeRoute?.destination ?? ''}`;
   $('xr-edit').hidden = !recording || calibrated;
   $('xr-instructions').textContent = !origin ? `At U328: ${input('xr-spot').value}. Aim at that FLOOR spot and confirm the origin.` : !calibrated ? `Stand at the same spot. Face: ${input('xr-facing').value}. Hold the phone looking horizontally in that direction, then explicitly confirm.` : recording ? 'Aim at the floor ahead. Add arrows along this corridor; mark each corner with Turn left or Turn right. Finish at the destination.' : `Destination: ${activeRoute?.destination}. Follow only this corridor segment.`;
   const live = tracked && !interrupted;

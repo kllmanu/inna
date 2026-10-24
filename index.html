@@ -10,7 +10,7 @@
   <body>
     <header class="fhv-header"><a href="/" aria-label="INNA home">INNA</a><span>FHV · Routes from U328</span></header>
     <main>
-      <section class="intro"><h1>Record the way.<br>Walk it again.</h1><p>Personal floor-level arrow tracks, always starting at U328. Record on site or import a track you trust. No routes are supplied.</p></section>
+      <section class="intro"><h1>Where are<br>you heading?</h1><p>Select a saved route and start at U328. Follow its starting instructions before you walk. You can also import a route JSON file.</p></section>
       <p id="message" role="status" aria-live="polite"></p>
       <div class="workspace">
         <section aria-labelledby="library-heading">
@@ -23,10 +23,9 @@
           <p class="hint">Imports are previewed as an unsaved track. Save explicitly to add a new copy; existing tracks are never replaced.</p>
           <div id="storage-recovery" hidden><p>Stored data could not be read. It has not been replaced. Export the original data before clearing storage.</p><button id="export-storage" class="secondary">Export original storage</button><button id="clear-storage" class="secondary">Clear unreadable storage…</button></div>
         </section>
-        <section aria-labelledby="record-heading">
-          <h2 id="record-heading">Create a track</h2>
+        <section id="create-track" aria-labelledby="record-heading">
+          <h2 id="record-heading" tabindex="-1">Create a track</h2>
           <form id="record-form">
-            <label for="track-name">Track name</label><input id="track-name" maxlength="80" required placeholder="A name you will recognise" />
             <label for="destination">Destination room</label><input id="destination" maxlength="40" required placeholder="Room identifier" />
             <label for="start-spot">Exact starting spot at U328</label><textarea id="start-spot" maxlength="400" required placeholder="Describe a repeatable floor spot at U328"></textarea>
             <label for="start-facing">Direction to face at that spot</label><textarea id="start-facing" maxlength="400" required placeholder="Describe a fixed visible feature to face"></textarea>

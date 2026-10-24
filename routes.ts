@@ -5,7 +5,6 @@ export const THRESHOLD = 1.5;
 export interface Point { x: number; z: number; kind: 'arrow' | 'turn' | 'destination'; turn?: 'left' | 'right' }
 export interface Route {
   id: string;
-  name: string;
   start: 'U328';
   destination: string;
   instructions: { spot: string; facing: string };
@@ -25,7 +24,10 @@ function text(value: unknown, max: number, label: string): string {
   return value.trim();
 }
 export function validateRoute(value: unknown): Route {
-  const r = object(value, ['id', 'name', 'start', 'destination', 'instructions', 'points']);
+  const legacyName = !!value && typeof value === 'object' && Object.hasOwn(value, 'name');
+  const fields = ['id', 'start', 'destination', 'instructions', 'points'];
+  const r = object(value, legacyName ? [...fields, 'name'] : fields);
+  if (legacyName) text(r.name, 80, 'legacy track name');
   const id = text(r.id, 80, 'track ID');
   if (!/^[a-zA-Z0-9-]+$/.test(id)) fail('Invalid track ID.');
   if (r.start !== 'U328') fail('Only tracks starting at U328 are supported.');
@@ -46,7 +48,7 @@ export function validateRoute(value: unknown): Route {
     if (i > 0 && distance(p, points[i - 1]) < .25) fail('Consecutive points must be at least 0.25 m apart.');
     if ((p.kind === 'destination') !== (i === points.length - 1)) fail('Only the final point must be the destination; turns cannot dangle.');
   });
-  return { id, name: text(r.name, 80, 'track name'), start: 'U328', destination, instructions: { spot: text(instructions.spot, 400, 'starting spot'), facing: text(instructions.facing, 400, 'facing direction') }, points };
+  return { id, start: 'U328', destination, instructions: { spot: text(instructions.spot, 400, 'starting spot'), facing: text(instructions.facing, 400, 'facing direction') }, points };
 }
 export function serialize(route: Route): string { return JSON.stringify({ version: VERSION, route: validateRoute(route) }, null, 2); }
 export function parseRoute(raw: string): Route {
