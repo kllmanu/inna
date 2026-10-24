@@ -10,7 +10,9 @@ the word "inna" means "inside" or "in".
 
 ## Campus map
 
-After enabling the camera, the U, V and W building map appears below the scene.
+The U, V and W building map is always available below the camera area, even
+before camera access is enabled or if access is denied. On shorter screens,
+scroll within the map panel to reach the compass controls.
 Select **Enable compass** to rotate it with your heading. Compass access requires
 HTTPS (or localhost), a device with compass sensors, and browser permission.
 Hold the phone flat for best accuracy. Without compass readings, the map remains

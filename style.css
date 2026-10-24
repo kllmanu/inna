@@ -81,13 +81,17 @@ a-scene {
 .camera-fallback {
   display: none;
   position: fixed;
-  inset: 78px 0 0;
+  top: 78px;
+  left: 0;
+  right: 0;
+  height: var(--scene-size);
   z-index: 2;
   align-items: center;
   justify-content: center;
   flex-direction: column;
   gap: 12px;
   padding: 24px;
+  overflow: auto;
   background: #f3f5f3;
   color: #18211b;
   text-align: center;
@@ -126,9 +130,9 @@ a-scene {
   position: fixed;
   inset: calc(78px + var(--scene-size)) 0 0;
   z-index: 2;
-  display: none;
+  display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   flex-direction: column;
   gap: 8px;
   padding: 12px 16px max(12px, env(safe-area-inset-bottom));
@@ -138,25 +142,19 @@ a-scene {
   overflow: auto;
 }
 
-.camera-ready .campus-map {
-  display: flex;
-}
-
 .campus-map-stage {
-  flex: 1;
-  min-height: 0;
-  width: 100%;
+  flex-shrink: 0;
+  width: min(100%, 360px);
+  aspect-ratio: 1;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .campus-map-stage img {
-  width: min(75vw, max(0px, calc(100vh - var(--scene-size) - 230px)), 300px);
-  width: min(75vw, max(0px, calc(100dvh - var(--scene-size) - 230px)), 300px);
-  aspect-ratio: 1;
+  width: 70.71%;
+  height: 70.71%;
   object-fit: contain;
-  padding: 15%;
 }
 
 .campus-map p {
