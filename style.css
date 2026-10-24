@@ -3,8 +3,15 @@
 }
 
 :root {
-  --scene-size: min(100vw, 55vh);
-  --scene-size: min(100vw, 55dvh);
+  --scene-size: min(160px, calc(100vw - 32px));
+  --camera-top: 94px;
+  --camera-right: 16px;
+}
+
+:root.camera-expanded {
+  --scene-size: min(640px, calc(100vw - 32px), calc(100vh - 160px));
+  --scene-size: min(640px, calc(100vw - 32px), calc(100dvh - 160px));
+  --camera-right: calc((100vw - var(--scene-size)) / 2);
 }
 
 html,
@@ -64,14 +71,16 @@ body {
 
 a-scene {
   position: fixed;
-  top: 78px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1;
+  top: var(--camera-top);
+  left: auto;
+  right: var(--camera-right);
+  z-index: 5;
   width: var(--scene-size) !important;
   height: var(--scene-size) !important;
   aspect-ratio: 1 / 1;
   visibility: hidden;
+  outline: 1px solid #8096a3;
+  overflow: hidden;
 }
 
 .camera-ready a-scene {
@@ -81,20 +90,42 @@ a-scene {
 .camera-fallback {
   display: none;
   position: fixed;
-  top: 78px;
-  left: 0;
-  right: 0;
+  top: var(--camera-top);
+  right: var(--camera-right);
+  width: var(--scene-size);
   height: var(--scene-size);
-  z-index: 2;
+  z-index: 6;
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  gap: 12px;
-  padding: 24px;
+  gap: 8px;
+  padding: 10px;
   overflow: auto;
   background: #e6eef3;
   color: #18211b;
   text-align: center;
+  border: 1px solid #8096a3;
+}
+
+.camera-fallback h1 {
+  font-size: 1rem;
+}
+
+.camera-fallback p {
+  font-size: 0.75rem;
+}
+
+.camera-expanded .camera-fallback {
+  padding: 24px;
+  gap: 12px;
+}
+
+.camera-expanded .camera-fallback h1 {
+  font-size: 1.5rem;
+}
+
+.camera-expanded .camera-fallback p {
+  font-size: 1rem;
 }
 
 .camera-fallback h1,
@@ -113,11 +144,13 @@ a-scene {
 
 .camera-fallback button {
   min-height: 44px;
-  padding: 0 20px;
+  flex-shrink: 0;
+  padding: 4px 8px;
   border: 0;
   background: #18211b;
   color: #fff;
   font: inherit;
+  font-size: 0.8125rem;
   cursor: pointer;
 }
 
@@ -126,13 +159,34 @@ a-scene {
   opacity: 0.7;
 }
 
+.camera-toggle {
+  position: fixed;
+  top: calc(var(--camera-top) + var(--scene-size));
+  right: var(--camera-right);
+  z-index: 7;
+  width: var(--scene-size);
+  min-height: 44px;
+  border: 1px solid #8096a3;
+  background: #e6eef3;
+  color: #18211b;
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.camera-toggle:focus-visible,
+.camera-fallback button:focus-visible {
+  outline: 3px solid #18211b;
+  outline-offset: 3px;
+}
+
 .campus-map {
   position: fixed;
-  inset: calc(78px + var(--scene-size)) 0 0;
+  inset: 78px 0 0;
   z-index: 2;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   flex-direction: column;
   gap: 8px;
   padding: 12px 16px max(12px, env(safe-area-inset-bottom));
@@ -144,8 +198,10 @@ a-scene {
 
 .campus-map-stage {
   flex-shrink: 0;
-  width: min(100%, 360px);
+  width: min(100%, calc(100vh - 220px), 720px);
+  width: min(100%, calc(100dvh - 220px), 720px);
   aspect-ratio: 1;
+  margin-block: auto;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -194,10 +250,11 @@ a-scene .a-canvas {
 
 #arjs-video {
   position: fixed !important;
-  top: 78px !important;
-  left: 50% !important;
-  transform: translateX(-50%);
-  z-index: 0 !important;
+  top: var(--camera-top) !important;
+  left: auto !important;
+  right: var(--camera-right) !important;
+  transform: none !important;
+  z-index: 4 !important;
   width: var(--scene-size) !important;
   height: var(--scene-size) !important;
   aspect-ratio: 1 / 1;

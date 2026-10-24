@@ -10,9 +10,11 @@ the word "inna" means "inside" or "in".
 
 ## Campus map
 
-The U, V and W building map is always available below the camera area, even
-before camera access is enabled or if access is denied. On shorter screens,
-scroll within the map panel to reach the compass controls.
+The U, V and W building map fills the main view, even before camera access is
+enabled or if access is denied. A compact square camera preview sits in the
+top-right corner below the header. Use **Expand camera** for marker scanning
+and **Collapse camera** (or Escape) to return to the map-first layout.
+On shorter screens, scroll within the map panel to reach the compass controls.
 Select **Enable camera and compass** to request both permissions with one tap.
 The browser may show separate permission prompts. Camera and compass access
 are independent: denying one does not prevent the other from working.

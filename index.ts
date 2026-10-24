@@ -121,6 +121,21 @@ const cameraButton = document.querySelector<HTMLButtonElement>('#camera-start');
 const cameraHeading = document.querySelector<HTMLElement>('#camera-heading');
 const cameraMessage = document.querySelector<HTMLElement>('#camera-message');
 const root = document.documentElement;
+const cameraToggle = document.querySelector<HTMLButtonElement>('#camera-toggle');
+
+cameraToggle?.addEventListener('click', () => {
+  const expanded = root.classList.toggle('camera-expanded');
+  cameraToggle.setAttribute('aria-expanded', String(expanded));
+  cameraToggle.textContent = expanded ? 'Collapse camera' : 'Expand camera';
+  window.dispatchEvent(new Event('resize'));
+});
+
+window.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && root.classList.contains('camera-expanded')) {
+    cameraToggle?.click();
+    cameraToggle?.focus();
+  }
+});
 
 async function startCameraExperience() {
   if (!sceneTemplate || !navigator.mediaDevices?.getUserMedia) {
