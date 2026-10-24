@@ -155,7 +155,10 @@ async function startCameraExperience() {
 }
 
 root.classList.add('camera-pending');
-cameraButton?.addEventListener('click', () => void startCameraExperience());
+cameraButton?.addEventListener('click', () => {
+  void enableCompass();
+  void startCameraExperience();
+});
 
 interface CompassOrientationEvent extends DeviceOrientationEvent {
   webkitCompassHeading?: number;
@@ -200,16 +203,20 @@ function updateCompass(event: CompassOrientationEvent) {
 
 async function enableCompass() {
   if (!compassButton || !compassStatus) return;
+  if (compassListening && compassButton.hidden) return;
   if (!window.isSecureContext || !window.DeviceOrientationEvent) {
     compassStatus.textContent = 'Compass unavailable. Use HTTPS and a phone with a compass. Map remains north-aligned.';
+    compassButton.hidden = false;
     return;
   }
 
   compassButton.disabled = true;
+  compassButton.hidden = true;
   try {
     const orientation = window.DeviceOrientationEvent as PermissionDeviceOrientation;
     if (orientation.requestPermission && await orientation.requestPermission(true) !== 'granted') {
       compassStatus.textContent = 'Compass access denied. Allow motion and orientation access in your browser settings.';
+      compassButton.hidden = false;
       return;
     }
     if (!compassListening) {
@@ -221,10 +228,12 @@ async function enableCompass() {
     window.clearTimeout(compassTimeout);
     compassTimeout = window.setTimeout(() => {
       compassStatus.textContent = 'No compass readings received. Check sensor permissions and try again. Map remains north-aligned.';
+      compassButton.hidden = false;
     }, 8000);
   } catch (error) {
     console.error('Unable to enable compass', error);
     compassStatus.textContent = 'Unable to enable the compass. Check sensor permissions and try again.';
+    compassButton.hidden = false;
   } finally {
     compassButton.disabled = false;
   }
