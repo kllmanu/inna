@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#101612" />
     <title>INNA</title>
-    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.7/aframe/build/aframe-ar.js"></script>
   </head>
   <body>
@@ -17,8 +17,9 @@
 
     <main id="camera-fallback" class="camera-fallback" aria-live="polite">
       <h1 id="camera-heading">Indoor Navigation</h1>
-      <p id="camera-message">Immersive web</p>
-      <button id="camera-start" type="button">Enable Camera</button>
+      <p id="camera-message">Checking AR support…</p>
+      <button id="camera-start" type="button" disabled>Checking AR…</button>
+      <button id="marker-start" type="button" hidden>Use marker camera</button>
     </main>
 
     <button
@@ -43,6 +44,30 @@
       </p>
       <button id="compass-start" type="button" hidden>Retry compass</button>
     </section>
+
+    <div id="xr-overlay">
+      <p id="xr-status" role="status">Move your phone to find a surface, then tap to place the arrow.</p>
+      <button id="xr-exit" type="button">Exit AR</button>
+    </div>
+
+    <template id="webxr-scene-template">
+      <a-scene
+        class="webxr-scene"
+        embedded
+        renderer="alpha: true"
+        vr-mode-ui="enabled: false"
+        webxr="referenceSpaceType: local; requiredFeatures: hit-test; optionalFeatures: dom-overlay; overlayElement: #xr-overlay"
+        ar-hit-test="target: #xr-arrow"
+      >
+        <a-entity id="xr-arrow" visible="false">
+          <a-entity
+            position="0 0.1 0"
+            direction-arrow="length: 0.45; direction: 0 0 -1; color: red"
+          ></a-entity>
+        </a-entity>
+        <a-entity camera position="0 0 0" look-controls="enabled: false"></a-entity>
+      </a-scene>
+    </template>
 
     <template id="ar-scene-template">
       <a-scene

@@ -122,6 +122,113 @@ const cameraHeading = document.querySelector<HTMLElement>('#camera-heading');
 const cameraMessage = document.querySelector<HTMLElement>('#camera-message');
 const root = document.documentElement;
 const cameraToggle = document.querySelector<HTMLButtonElement>('#camera-toggle');
+const markerButton = document.querySelector<HTMLButtonElement>('#marker-start');
+const xrTemplate = document.querySelector<HTMLTemplateElement>('#webxr-scene-template');
+const xrStatus = document.querySelector<HTMLElement>('#xr-status');
+const xrExit = document.querySelector<HTMLButtonElement>('#xr-exit');
+
+interface XRScene extends HTMLElement {
+  hasLoaded: boolean;
+  enterAR(): Promise<void>;
+  exitVR(): Promise<void>;
+}
+
+interface XRSupport {
+  isSessionSupported(mode: 'immersive-ar'): Promise<boolean>;
+}
+
+let xrScene: XRScene | undefined;
+let preferWebXR = false;
+let xrStarting = false;
+
+function showCameraStart(message: string, label: string) {
+  if (cameraMessage) cameraMessage.textContent = message;
+  if (cameraButton) {
+    cameraButton.textContent = label;
+    cameraButton.disabled = false;
+  }
+}
+
+async function initializeAR() {
+  try {
+    const xr = (navigator as Navigator & { xr?: XRSupport }).xr;
+    if (!window.isSecureContext || !xr || !await xr.isSessionSupported('immersive-ar')) {
+      showCameraStart('Scan a Hiro marker to see the arrow. WebXR AR is unavailable on this device.', 'Enable camera and compass');
+      return;
+    }
+    if (!aframe || !xrTemplate?.content.firstElementChild) {
+      throw new Error('WebXR scene is unavailable');
+    }
+    xrScene = xrTemplate.content.firstElementChild.cloneNode(true) as XRScene;
+    const scene = xrScene;
+    scene.addEventListener('enter-vr', () => {
+      root.classList.add('xr-active');
+      scene.querySelector('#xr-arrow')?.setAttribute('visible', 'false');
+      if (xrStatus) xrStatus.textContent = 'Move your phone to find a surface, then tap to place the arrow.';
+    });
+    scene.addEventListener('exit-vr', () => {
+      root.classList.remove('xr-active');
+      showCameraStart('AR session ended. Start again or use the marker camera.', 'Start immersive AR');
+      cameraButton?.focus();
+    });
+    scene.addEventListener('ar-hit-test-achieved', () => {
+      if (xrStatus) xrStatus.textContent = 'Surface found. Tap to place the arrow.';
+    });
+    scene.addEventListener('ar-hit-test-select', () => {
+      if (xrStatus) xrStatus.textContent = 'Arrow placed. Tap another surface to reposition it. This is not a calculated route.';
+    });
+    const loaded = new Promise<void>((resolve) => {
+      scene.addEventListener('loaded', () => resolve(), { once: true });
+    });
+    document.body.append(scene);
+    if (!scene.hasLoaded) await loaded;
+    preferWebXR = true;
+    if (markerButton) markerButton.hidden = false;
+    showCameraStart('Find a surface and tap to place the arrow in full-screen AR.', 'Start immersive AR');
+  } catch (error) {
+    console.error('Unable to initialize WebXR', error);
+    xrScene?.remove();
+    xrScene = undefined;
+    showCameraStart('WebXR could not initialize. Use the Hiro-marker camera instead.', 'Enable camera and compass');
+  }
+}
+
+async function startImmersiveAR() {
+  if (!xrScene || xrStarting) return;
+  xrStarting = true;
+  if (cameraButton) cameraButton.disabled = true;
+  if (markerButton) markerButton.disabled = true;
+  try {
+    await xrScene.enterAR();
+  } catch (error) {
+    console.error('Unable to start immersive AR', error);
+    root.classList.remove('xr-active');
+    showCameraStart('Immersive AR failed or permission was denied. Try again or use the marker camera.', 'Retry immersive AR');
+  } finally {
+    xrStarting = false;
+    if (cameraButton) cameraButton.disabled = false;
+    if (markerButton) markerButton.disabled = false;
+  }
+}
+
+xrExit?.addEventListener('beforexrselect', (event) => event.preventDefault());
+xrExit?.addEventListener('click', async () => {
+  try {
+    await xrScene?.exitVR();
+  } catch (error) {
+    console.error('Unable to exit immersive AR', error);
+    if (xrStatus) xrStatus.textContent = 'Unable to exit AR. Use your browser’s exit control.';
+  }
+});
+
+markerButton?.addEventListener('click', () => {
+  preferWebXR = false;
+  xrScene?.remove();
+  xrScene = undefined;
+  markerButton.hidden = true;
+  void enableCompass();
+  void startCameraExperience();
+});
 
 cameraToggle?.addEventListener('click', () => {
   const expanded = root.classList.toggle('camera-expanded');
@@ -171,6 +278,11 @@ async function startCameraExperience() {
 
 root.classList.add('camera-pending');
 cameraButton?.addEventListener('click', () => {
+  if (preferWebXR) {
+    void startImmersiveAR();
+    void enableCompass();
+    return;
+  }
   void enableCompass();
   void startCameraExperience();
 });
@@ -255,3 +367,4 @@ async function enableCompass() {
 }
 
 compassButton?.addEventListener('click', () => void enableCompass());
+void initializeAR();

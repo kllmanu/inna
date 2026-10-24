@@ -159,6 +159,71 @@ a-scene {
   opacity: 0.7;
 }
 
+.camera-fallback button[hidden] {
+  display: none;
+}
+
+.camera-fallback #marker-start {
+  background: transparent;
+  color: #18211b;
+  border: 1px solid #8096a3;
+}
+
+#xr-overlay {
+  display: none;
+}
+
+.xr-active #xr-overlay {
+  display: flex;
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  align-items: center;
+  justify-content: space-between;
+  flex-direction: column;
+  padding: max(24px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
+  pointer-events: none;
+}
+
+#xr-status,
+#xr-exit {
+  padding: 12px 16px;
+  background: #e6eef3;
+  color: #18211b;
+  font: inherit;
+}
+
+#xr-status {
+  max-width: 32rem;
+  text-align: center;
+}
+
+#xr-exit {
+  min-height: 44px;
+  border: 1px solid #8096a3;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+#xr-exit:focus-visible {
+  outline: 3px solid #18211b;
+}
+
+.xr-active .webxr-scene {
+  top: 0;
+  right: 0;
+  width: 100vw !important;
+  height: 100vh !important;
+  visibility: visible;
+}
+
+.xr-active .fhv-header,
+.xr-active .camera-fallback,
+.xr-active .camera-toggle,
+.xr-active .campus-map {
+  display: none;
+}
+
 .camera-toggle {
   position: fixed;
   top: calc(var(--camera-top) + var(--scene-size));
