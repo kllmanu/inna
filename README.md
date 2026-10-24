@@ -1,52 +1,112 @@
-# INNA — indoor navigation
+# INNA — recorded routes from U328
 
-Indoor navigation is still quite a challenging problem these days, equipped with nothing but a phone, 
-GPS signals fail and precise spatial positioning becomes a nightmare. INNA takes a different approach:
-It treats movement very much like a vector, defined strictly by its **length** and its **direction**.
-Where conventional navigation systems fail, INNA keeps things simple and acts as your safety net.
+A WebXR-only, on-site route recorder and player. No routes are bundled, no room
+location is inferred, and no path to U310 (or any other room) is fabricated.
+The FHV campus SVG is an optional, untracked overview.
 
-> In the Vorarlberg dialect (an Alemannic dialect group spoken in western Austria), 
-the word "inna" means "inside" or "in".
+## Run
 
-## Campus map
+```sh
+npm install
+npm run dev -- --host
+npm test
+npm run build
+```
 
-The U, V and W building map fills the main view, even before camera access is
-enabled or if access is denied. A compact square camera preview sits in the
-top-right corner below the header. Use **Expand camera** for marker scanning
-and **Collapse camera** (or Escape) to return to the map-first layout.
-On shorter screens, scroll within the map panel to reach the compass controls.
-Select **Enable camera and compass** to request both permissions with one tap.
-The browser may show separate permission prompts. Camera and compass access
-are independent: denying one does not prevent the other from working.
-If compass access fails or no readings arrive, use **Retry compass**.
-Compass access requires
-HTTPS (or localhost), a device with compass sensors, and browser permission.
-Hold the phone flat for best accuracy. Without compass readings, the map remains
-north-aligned.
+Tests require Node 22.6+ (type stripping). Serve over **HTTPS** on a real phone;
+plain HTTP on a LAN address does not qualify as a secure context. Localhost is
+useful for desktop UI tests, not proof of AR support.
+A-Frame 1.7.1 loads from aframe.io; network access is required on first load.
 
-`MAP_NORTH_OFFSET_DEGREES` in [index.ts](./index.ts) sets the clockwise bearing
-of the SVG's top from north. Its current value of 20 degrees is an estimate from
-a north-up Google Maps screenshot, not a surveyed bearing. Refine it on site if
-needed. Screen orientation is accounted for when following the compass.
+## Record on site
 
-## AR modes
+1. At U328, enter a track name, a destination room other than U328, an exact
+   repeatable starting floor spot, and a fixed feature to face. These are
+   instructions you supply, not surveyed or verified locations.
+2. Select **Record in WebXR**. A compatible browser/device must support immersive
+   AR, `hit-test` and `dom-overlay`. Both features are mandatory; permission or
+   feature failures are displayed. There is no AR.js, marker, compass, inline
+   camera or non-WebXR fallback.
+3. Find the floor with the blue reticle. Confirm that the reticle is at your
+   described U328 spot, then select **Confirm floor origin**.
+4. Stand at that same spot (within 1 m), hold the phone looking horizontally at
+   the described feature and select **Confirm facing direction**. Instructions
+   remain editable until this confirmation and are included in the saved track.
+   Do not point the camera straight up/down for heading calibration.
+5. Walk the corridor and aim at the floor to **Add arrow** repeatedly. Use
+   **Add turning point** at every corner/segment boundary. **Undo last point**
+   removes the last captured point or corner. The calibrated U328 origin is
+   the first arrow and cannot be undone.
+6. At the destination floor point select **Finish at destination**. The complete
+   track returns to the library as **unsaved**. Explicitly **Save as new track**
+   or **Export unsaved JSON**. Exiting early discards incomplete capture.
 
-On HTTPS devices that report support for WebXR `immersive-ar`, the start button
-prefers full-screen **Start immersive AR**. Move the phone to find a surface,
-then tap to place the cone-tipped arrow. Tap again to reposition it.
-Surface hit testing is required; DOM-overlay instructions and **Exit AR** are
-available when the browser supports DOM overlays. Otherwise, use the browser's
-own exit control.
+Only the current recording corridor is displayed after a turn. Consecutive
+points must be at least 0.25 m apart; complete tracks need 2–500 points including
+the origin and final destination. Choose level floor surfaces, not tables.
+After origin selection, hits must have an upward normal and be within 0.25 m
+of the origin floor height. This implementation is for a single floor, not stairs.
 
-This mode places a demonstration arrow in the real world; it does not recognize
-Hiro markers, determine your indoor position, or calculate a navigation route.
-The compass map remains a separate feature and does not align the XR world.
+## Walk a recorded route
 
-If immersive AR is unsupported, the app uses the compact AR.js Hiro-marker
-camera automatically. On supported devices, **Use marker camera** also lets you
-switch to that mode, including after denied permissions or session errors.
-Immersive AR is browser-managed and cannot run inside the small camera preview.
-Closing an immersive session returns to the map, where it can be started again.
+Choose a saved destination and select **Walk selected route**. Repeat its exact
+U328 floor-origin and facing calibration every session. Route X/Z positions are
+stored relative to the selected floor origin and inverse horizontal XR camera
+heading, not compass north or the phone's height. A fresh origin/heading transform
+places arrows in the new session.
 
-The app uses A-Frame 1.7.1 for WebXR session error handling and surface hit tests;
-AR.js remains responsible only for the marker-camera fallback.
+Only the active corridor segment is drawn. Get within **1.5 m** (horizontal
+tracked-camera distance) of its recorded corner and explicitly select
+**Confirm corner** to reveal the next segment. Proximity never advances
+automatically. The same rule applies to **Confirm arrival** at the final point.
+This is **segment gating, not real occlusion**: arrows in the current segment
+can still draw through walls. It does not detect obstacles, authenticate room
+locations, calculate routes or guarantee accurate arrival.
+
+Pose loss/emulated positions hide arrows and disable calibration, capture, undo
+and progression until tracking returns. Session visibility interruptions or
+reference-space resets require exiting and recalibrating at U328 instead of
+silently resuming in an uncertain coordinate frame. Session end clears all
+calibration. Watch your surroundings, do not walk while staring at the screen,
+and stop if alignment drifts.
+
+## Local data and JSON
+
+- Browser storage key: `inna.u328.routes.v1`; at most 50 tracks per library.
+- Tracks are saved explicitly as new copies with new IDs. Delete requires
+  confirmation. Import does not overwrite existing tracks or automatically save.
+- Select a JSON file to validate and preview its name, destination and starting
+  instructions as an unsaved track, then explicitly save a new copy.
+- Storage read/parse/quota failures are visible. Corrupt/unreadable storage is
+  never automatically replaced. Export its original contents before explicitly
+  clearing it; recovered/current complete tracks can still be exported if saving
+  fails. A changed storage value in another tab blocks writes until reload.
+- Downloads use Blob URLs, removed anchors and revoked URLs.
+- Exported file shape is exactly `{ "version": 1, "route": { … } }`.
+  A route has `id`, `name`, `start: "U328"`, `destination`,
+  `instructions: { "spot": "...", "facing": "..." }`, and `points`.
+  Points have finite meter coordinates `x`, `z` and `kind` equal to `arrow`,
+  `turn` or `destination`. First point is `(0,0)`/`arrow`; only the last point
+  is `destination`. Every turn closes one segment and starts the next.
+- Unknown/missing fields, wrong versions, duplicate library IDs, invalid room
+  text, incomplete/degenerate tracks, nonfinite coordinates, coordinates beyond
+  ±500 m, more than 500 points and files above 1 MB are rejected.
+- JSON imports are data only; supplied labels are rendered as text, not HTML.
+
+## Verification and limitations
+
+`npm test` covers strict schema rejection, route/library round trips,
+origin/heading transforms independent of camera height, shared corner boundaries
+and tracked-distance gating. `npm run build` checks TypeScript and production
+bundling. Mocked browser XR tests can exercise the UI state machine, not physical
+hit-test quality or tracking accuracy. A real supported phone at U328 is still
+required to verify floor selection, repeatable origin/facing alignment, DOM
+overlay operation, relocalization behavior, drift and actual corridor visibility.
+
+`tests/browser-flow.js` is a reusable browser-tool function (use the Playwright
+tool's `filename` option with the dev server on port 4175). It uses the real
+A-Frame/application code and mocked native poses/hits to check recording, edited
+instructions, undo, loss of tracking, quota failure/export, explicit save/reload,
+corner/arrival confirmation, reference resets, import/delete, corrupt-storage
+recovery and mobile overflow. It uses a test browser origin and clears that
+origin's INNA storage; do not run it in a browser profile containing real routes.

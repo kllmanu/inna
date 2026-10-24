@@ -3,87 +3,54 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#101612" />
-    <title>INNA</title>
+    <meta name="theme-color" content="#97cff1" />
+    <title>INNA · Routes from U328</title>
     <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.7/aframe/build/aframe-ar.js"></script>
   </head>
   <body>
-    <header class="fhv-header" aria-label="FHV header">
-      <a class="fhv-logo" href="/" aria-label="INNA home">
-        <span>INNA</span>
-      </a>
-    </header>
-
-    <main id="camera-fallback" class="camera-fallback" aria-live="polite">
-      <h1 id="camera-heading">Indoor Navigation</h1>
-      <p id="camera-message">Checking AR support…</p>
-      <button id="camera-start" type="button" disabled>Checking AR…</button>
-      <button id="marker-start" type="button" hidden>Use marker camera</button>
-    </main>
-
-    <button
-      id="camera-toggle"
-      class="camera-toggle"
-      type="button"
-      aria-expanded="false"
-    >
-      Expand camera
-    </button>
-
-    <section class="campus-map" aria-label="FHV campus map">
-      <div class="campus-map-stage">
-        <img
-          id="campus-map-image"
-          src="./uvw.svg"
-          alt="Map of the FHV U, V and W buildings"
-        />
+    <header class="fhv-header"><a href="/" aria-label="INNA home">INNA</a><span>FHV · Routes from U328</span></header>
+    <main>
+      <section class="intro"><h1>Record the way.<br>Walk it again.</h1><p>Personal floor-level arrow tracks, always starting at U328. Record on site or import a track you trust. No routes are supplied.</p></section>
+      <p id="message" role="status" aria-live="polite"></p>
+      <div class="workspace">
+        <section aria-labelledby="library-heading">
+          <h2 id="library-heading">Your routes</h2>
+          <label for="route-select">Saved destination</label>
+          <select id="route-select"><option value="">No saved routes</option></select>
+          <p id="route-details">Record or import your first route.</p>
+          <div class="actions"><button id="play" disabled>Walk selected route</button><button id="export" class="secondary" disabled>Export JSON</button><button id="delete" class="secondary" disabled>Delete selected</button></div>
+          <label for="import">Import a route JSON file</label><input id="import" type="file" accept=".json,application/json" />
+          <p class="hint">Imports are previewed as an unsaved track. Save explicitly to add a new copy; existing tracks are never replaced.</p>
+          <div id="storage-recovery" hidden><p>Stored data could not be read. It has not been replaced. Export the original data before clearing storage.</p><button id="export-storage" class="secondary">Export original storage</button><button id="clear-storage" class="secondary">Clear unreadable storage…</button></div>
+        </section>
+        <section aria-labelledby="record-heading">
+          <h2 id="record-heading">Create a track</h2>
+          <form id="record-form">
+            <label for="track-name">Track name</label><input id="track-name" maxlength="80" required placeholder="A name you will recognise" />
+            <label for="destination">Destination room</label><input id="destination" maxlength="40" required placeholder="Room identifier" />
+            <label for="start-spot">Exact starting spot at U328</label><textarea id="start-spot" maxlength="400" required placeholder="Describe a repeatable floor spot at U328"></textarea>
+            <label for="start-facing">Direction to face at that spot</label><textarea id="start-facing" maxlength="400" required placeholder="Describe a fixed visible feature to face"></textarea>
+            <p class="hint">Use the same spot and direction every session. These instructions travel with the JSON file.</p>
+            <button id="record" type="submit" disabled>Record in WebXR</button>
+          </form>
+        </section>
       </div>
-      <p id="compass-status" role="status">
-        North-aligned map. Start the experience to enable the compass.
-      </p>
-      <button id="compass-start" type="button" hidden>Retry compass</button>
-    </section>
-
+      <section id="draft-panel" hidden aria-labelledby="draft-heading"><h2 id="draft-heading">Unsaved track</h2><p id="draft-details"></p><div class="actions"><button id="save">Save as new track</button><button id="export-draft" class="secondary">Export unsaved JSON</button><button id="discard" class="secondary">Discard unsaved track</button></div></section>
+      <aside><h2>Before you walk</h2><p id="capability" role="status">Checking WebXR support…</p><p>HTTPS, immersive AR, hit testing and DOM-overlay controls are required. There is no camera, marker or compass fallback. Watch your surroundings; tracking can drift.</p><p>Only the current corridor segment is drawn. Confirm a corner within 1.5 m to reveal the next segment. This is segment gating, not wall occlusion, obstacle detection or verified indoor positioning.</p></aside>
+      <details><summary>Campus overview</summary><img class="campus-map" src="./uvw.svg" alt="Overview of the FHV U, V and W buildings; not a tracked navigation map" /></details>
+    </main>
     <div id="xr-overlay">
-      <p id="xr-status" role="status">Move your phone to find a surface, then tap to place the arrow.</p>
-      <button id="xr-exit" type="button">Exit AR</button>
+      <div class="xr-panel"><strong id="xr-title">U328 calibration</strong><p id="xr-instructions"></p><p id="xr-status" role="status" aria-live="polite"></p></div>
+      <div class="xr-panel xr-controls">
+        <div id="xr-edit"><label for="xr-spot">U328 starting spot</label><textarea id="xr-spot" maxlength="400"></textarea><label for="xr-facing">Facing direction</label><textarea id="xr-facing" maxlength="400"></textarea></div>
+        <div class="actions"><button id="origin">Confirm floor origin</button><button id="heading">Confirm facing direction</button><button id="add">Add arrow</button><button id="turn">Add turning point</button><button id="undo" class="secondary">Undo last point</button><button id="finish">Finish at destination</button><button id="advance">Confirm corner</button><button id="xr-exit" class="secondary">Exit AR</button></div>
+      </div>
     </div>
-
-    <template id="webxr-scene-template">
-      <a-scene
-        class="webxr-scene"
-        embedded
-        renderer="alpha: true"
-        vr-mode-ui="enabled: false"
-        webxr="referenceSpaceType: local; requiredFeatures: hit-test; optionalFeatures: dom-overlay; overlayElement: #xr-overlay"
-        ar-hit-test="target: #xr-arrow"
-      >
-        <a-entity id="xr-arrow" visible="false">
-          <a-entity
-            position="0 0.1 0"
-            direction-arrow="length: 0.45; direction: 0 0 -1; color: red"
-          ></a-entity>
-        </a-entity>
-        <a-entity camera position="0 0 0" look-controls="enabled: false"></a-entity>
-      </a-scene>
-    </template>
-
-    <template id="ar-scene-template">
-      <a-scene
-        embedded
-        renderer="alpha: true"
-        arjs="sourceType: webcam; debugUIEnabled: false;"
-      >
-        <a-marker preset="hiro">
-          <a-entity
-            position="0 0.15 0"
-            direction-arrow="length: 1.5; direction: 0 0 1; color: red"
-          ></a-entity>
-        </a-marker>
-        <a-entity camera></a-entity>
-      </a-scene>
-    </template>
+    <a-scene embedded renderer="alpha: true" vr-mode-ui="enabled: false" webxr="referenceSpaceType: local; requiredFeatures: hit-test, dom-overlay; overlayElement: #xr-overlay">
+      <a-entity id="arrows" visible="false"></a-entity>
+      <a-ring id="reticle" visible="false" rotation="-90 0 0" radius-inner="0.09" radius-outer="0.12" material="color: #97cff1; shader: flat; side: double"></a-ring>
+      <a-entity camera position="0 0 0" look-controls="enabled: false"></a-entity>
+    </a-scene>
     <script type="module" src="/index.ts"></script>
   </body>
 </html>

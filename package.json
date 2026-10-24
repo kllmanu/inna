@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "test": "node --experimental-strip-types --test tests/*.test.ts",
     "rsync": "rsync -avz --progress dist/ inna:/home/inna/html/",
 	"push": "npm run build && npm run rsync", 
     "preview": "vite preview"
