@@ -239,21 +239,22 @@ function xrUI(status?: string) {
   const recording = mode === 'record', calibrated = !!calibration;
   $('xr-title').textContent = `${recording ? 'Record' : 'Walk'} · ${activeRoute?.name ?? ''}`;
   $('xr-edit').hidden = !recording || calibrated;
-  $('xr-instructions').textContent = !origin ? `At U328: ${input('xr-spot').value}. Aim at that FLOOR spot and confirm the origin.` : !calibrated ? `Stand at the same spot. Face: ${input('xr-facing').value}. Hold the phone looking horizontally in that direction, then explicitly confirm.` : recording ? 'Aim at the floor ahead. Add arrows along this corridor; mark each corner as a turning point. Finish at the destination.' : `Destination: ${activeRoute?.destination}. Follow only this corridor segment.`;
+  $('xr-instructions').textContent = !origin ? `At U328: ${input('xr-spot').value}. Aim at that FLOOR spot and confirm the origin.` : !calibrated ? `Stand at the same spot. Face: ${input('xr-facing').value}. Hold the phone looking horizontally in that direction, then explicitly confirm.` : recording ? 'Aim at the floor ahead. Add arrows along this corridor; mark each corner with Turn left or Turn right. Finish at the destination.' : `Destination: ${activeRoute?.destination}. Follow only this corridor segment.`;
   const live = tracked && !interrupted;
-  for (const id of ['origin', 'heading', 'add', 'turn', 'undo', 'finish', 'advance']) button(id).disabled = true;
+  for (const id of ['origin', 'heading', 'add', 'turn-left', 'turn-right', 'undo', 'finish', 'advance']) button(id).disabled = true;
   button('origin').hidden = !!origin; button('origin').disabled = !live || !hit;
   button('heading').hidden = !origin || calibrated; button('heading').disabled = !live || yaw === null || !viewer || !origin || distance(viewer, origin) > 1;
-  for (const id of ['add', 'turn', 'undo', 'finish']) button(id).hidden = !recording || !calibrated || !!draft;
-  for (const id of ['add', 'turn', 'finish']) button(id).disabled = !live || !hit || !calibrated;
+  for (const id of ['add', 'turn-left', 'turn-right', 'undo', 'finish']) button(id).hidden = !recording || !calibrated || !!draft;
+  for (const id of ['add', 'turn-left', 'turn-right', 'finish']) button(id).disabled = !live || !hit || !calibrated;
   button('undo').disabled = !live || points.length < 2;
   button('advance').hidden = recording || !calibrated || arrived;
   if (!recording && calibrated && activeRoute) {
     const all = segments(activeRoute), end = all[segmentIndex].at(-1)!;
-    button('advance').textContent = segmentIndex === all.length - 1 ? 'Confirm arrival' : 'Confirm corner';
+    const turnInstruction = end.turn ? `Turn ${end.turn}` : 'Corner';
+    button('advance').textContent = segmentIndex === all.length - 1 ? 'Confirm arrival' : end.turn ? `Confirm ${end.turn} turn` : 'Confirm corner';
     button('advance').disabled = !canAdvance(viewer, calibration, end, live);
     const meters = viewer ? distance(viewer, toWorld(end, calibration!)).toFixed(1) : '?';
-    status ??= arrived ? 'Arrival confirmed. Exit AR when ready.' : `Segment ${segmentIndex + 1} of ${all.length}. ${meters} m to ${end.kind === 'turn' ? 'corner' : 'destination'}; confirm within ${THRESHOLD} m.`;
+    status ??= arrived ? 'Arrival confirmed. Exit AR when ready.' : `Segment ${segmentIndex + 1} of ${all.length}. ${end.kind === 'turn' ? `${turnInstruction} in ${meters} m` : `${meters} m to destination`}; confirm within ${THRESHOLD} m.`;
   }
   if (!calibrated && origin && live) status ??= !viewer || distance(viewer, origin) > 1 ? 'Stand within 1 m of the selected U328 floor origin to confirm your facing direction.' : yaw === null ? 'Hold the camera looking horizontally toward your described feature.' : 'Facing the recorded feature? Confirm the direction to finish calibration.';
   $('xr-status').textContent = status ?? (!live ? 'Waiting for tracking…' : !calibrated ? (hit ? 'Horizontal surface found. Confirm that it is the correct floor spot.' : 'Move the phone slowly to find the floor.') : recording ? `${points.length} points captured. ${hit ? 'Floor target ready.' : 'Find a floor target at the calibrated floor height.'}` : '');
@@ -272,9 +273,9 @@ button('heading').onclick = () => {
   if (mode === 'record') points = [{ x: 0, z: 0, kind: 'arrow' }];
   renderedKey = ''; xrUI();
 };
-function addPoint(kind: Point['kind']) {
+function addPoint(kind: Point['kind'], turn?: Point['turn']) {
   if (!mutable() || !hit || !calibration || mode !== 'record' || draft) return;
-  const point = { ...toLocal(hit, calibration), kind };
+  const point: Point = { ...toLocal(hit, calibration), kind, ...(turn ? { turn } : {}) };
   if (distance(point, points.at(-1)!) < .25) { xrUI('Select a floor point at least 0.25 m from the last point.'); return; }
   if (Math.abs(point.x) > 500 || Math.abs(point.z) > 500 || points.length >= 500) { xrUI('Track limit reached (500 points, 500 m from origin). Undo a point or finish nearer the origin.'); return; }
   points.push(point); renderedKey = '';
@@ -287,7 +288,8 @@ function addPoint(kind: Point['kind']) {
   } else xrUI();
 }
 button('add').onclick = () => addPoint('arrow');
-button('turn').onclick = () => addPoint('turn');
+button('turn-left').onclick = () => addPoint('turn', 'left');
+button('turn-right').onclick = () => addPoint('turn', 'right');
 button('finish').onclick = () => addPoint('destination');
 button('undo').onclick = () => { if (mutable() && mode === 'record' && points.length > 1 && !draft) { points.pop(); renderedKey = ''; xrUI(); } };
 button('advance').onclick = () => {
@@ -317,9 +319,13 @@ function renderArrows() {
     const next = visible[i + 1], previous = visible[i - 1];
     const target = next ? toWorld(next, calibration!) : previous ? position : toWorld({ x: point.x, z: point.z - 1 }, calibration!);
     const from = !next && previous ? toWorld(previous, calibration!) : position;
+    let dx = target.x - from.x, dz = target.z - from.z;
+    if (!next && previous && point.kind === 'turn' && point.turn) {
+      [dx, dz] = point.turn === 'left' ? [dz, -dx] : [-dz, dx];
+    }
     const arrow = document.createElement('a-entity');
     arrow.setAttribute('position', `${position.x} ${position.y + .08} ${position.z}`);
-    arrow.setAttribute('direction-arrow', `length: 0.45; direction: ${target.x - from.x} 0 ${target.z - from.z}; color: ${point.kind === 'arrow' ? '#e53935' : '#167c42'}`);
+    arrow.setAttribute('direction-arrow', `length: 0.45; direction: ${dx} 0 ${dz}; color: ${point.kind === 'arrow' ? '#e53935' : '#167c42'}`);
     group.append(arrow);
   });
 }

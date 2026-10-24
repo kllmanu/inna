@@ -13,6 +13,24 @@ test('versioned route and library round trip, including starting instructions', 
   assert.deepEqual(parseLibrary(serializeLibrary([route()])), [route()]);
   assert.deepEqual(parseLibrary('{"version":1,"routes":[]}'), []);
 });
+test('left and right turn choices survive JSON and segment boundaries; legacy turns still load', () => {
+  for (const turn of ['left', 'right'] as const) {
+    const r = route();
+    r.points[2].turn = turn;
+    const restored = parseRoute(serialize(r));
+    assert.deepEqual(restored, r);
+    assert.equal(segments(restored)[0].at(-1)!.turn, turn);
+    assert.equal(segments(restored)[1][0].turn, turn);
+    assert.deepEqual(parseLibrary(serializeLibrary([r])), [r]);
+  }
+  assert.equal(parseRoute(serialize(route())).points[2].turn, undefined);
+  for (const turn of ['straight', null, 1]) {
+    const r = route();
+    assert.throws(() => validateRoute({ ...r, points: r.points.map((p, i) => i === 2 ? { ...p, turn } : p) }));
+  }
+  const r = route();
+  assert.throws(() => validateRoute({ ...r, points: r.points.map((p, i) => i === 0 ? { ...p, turn: 'left' } : p) }));
+});
 test('strict fields, versions, counts, coordinate bounds and destination validation', () => {
   const bad: unknown[] = [
     { ...route(), start: 'U310' }, { ...route(), destination: 'U328' },

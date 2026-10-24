@@ -52,7 +52,7 @@
   await step({ hit: { x: 4, y: 0, z: 5 } });
   await page.locator('#add').click();
   await step({ hit: { x: 4, y: 0, z: 3 } });
-  await page.locator('#turn').click();
+  await page.locator('#turn-right').click();
   await step({ tracked: false });
   check(await page.locator('#undo').isDisabled(), 'Tracking loss must disable undo');
   check(await page.locator('#add').isDisabled(), 'Tracking loss must disable capture');

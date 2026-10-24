@@ -2,7 +2,7 @@ export const VERSION = 1;
 export const MAX_BYTES = 1_000_000;
 export const MAX_ROUTES = 50;
 export const THRESHOLD = 1.5;
-export interface Point { x: number; z: number; kind: 'arrow' | 'turn' | 'destination' }
+export interface Point { x: number; z: number; kind: 'arrow' | 'turn' | 'destination'; turn?: 'left' | 'right' }
 export interface Route {
   id: string;
   name: string;
@@ -34,11 +34,13 @@ export function validateRoute(value: unknown): Route {
   const instructions = object(r.instructions, ['spot', 'facing']);
   if (!Array.isArray(r.points) || r.points.length < 2 || r.points.length > 500) fail('A complete track needs 2–500 points.');
   const points = r.points.map((value, index) => {
-    const p = object(value, ['x', 'z', 'kind']);
+    const hasTurn = !!value && typeof value === 'object' && Object.hasOwn(value, 'turn');
+    const p = object(value, hasTurn ? ['x', 'z', 'kind', 'turn'] : ['x', 'z', 'kind']);
+    if (hasTurn && (p.kind !== 'turn' || (p.turn !== 'left' && p.turn !== 'right'))) fail('Turn direction must be left or right on a turning point.');
     if (typeof p.x !== 'number' || typeof p.z !== 'number' || !Number.isFinite(p.x) || !Number.isFinite(p.z) || Math.abs(p.x) > 500 || Math.abs(p.z) > 500) fail('Point coordinates must be finite and within 500 m of U328.');
     if (p.kind !== 'arrow' && p.kind !== 'turn' && p.kind !== 'destination') fail('Unknown point type.');
     if (index === 0 && (p.kind !== 'arrow' || Math.hypot(p.x, p.z) > 0.001)) fail('The first arrow must be at the U328 origin.');
-    return { x: p.x, z: p.z, kind: p.kind } as Point;
+    return { x: p.x, z: p.z, kind: p.kind, ...(hasTurn ? { turn: p.turn } : {}) } as Point;
   });
   points.forEach((p, i) => {
     if (i > 0 && distance(p, points[i - 1]) < .25) fail('Consecutive points must be at least 0.25 m apart.');

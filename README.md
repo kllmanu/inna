@@ -34,7 +34,10 @@ A-Frame 1.7.1 loads from aframe.io; network access is required on first load.
    remain editable until this confirmation and are included in the saved track.
    Do not point the camera straight up/down for heading calibration.
 5. Walk the corridor and aim at the floor to **Add arrow** repeatedly. Use
-   **Add turning point** at every corner/segment boundary. **Undo last point**
+   **Turn left** or **Turn right** at every corner/segment boundary. Aim at the
+   corner's floor spot; you do not need to face the new corridor yet. The choice
+   is relative to your direction of travel, not the phone's current orientation.
+   **Undo last point**
    removes the last captured point or corner. The calibrated U328 origin is
    the first arrow and cannot be undone.
 6. At the destination floor point select **Finish at destination**. The complete
@@ -57,7 +60,10 @@ places arrows in the new session.
 
 Only the active corridor segment is drawn. Get within **1.5 m** (horizontal
 tracked-camera distance) of its recorded corner and explicitly select
-**Confirm corner** to reveal the next segment. Proximity never advances
+**Confirm left turn** or **Confirm right turn** to reveal the next segment.
+The selected instruction is shown with the distance to the corner, and the
+corner arrow points left or right relative to the incoming path.
+Proximity never advances
 automatically. The same rule applies to **Confirm arrival** at the final point.
 This is **segment gating, not real occlusion**: arrows in the current segment
 can still draw through walls. It does not detect obstacles, authenticate room
@@ -88,6 +94,9 @@ and stop if alignment drifts.
   Points have finite meter coordinates `x`, `z` and `kind` equal to `arrow`,
   `turn` or `destination`. First point is `(0,0)`/`arrow`; only the last point
   is `destination`. Every turn closes one segment and starts the next.
+  New turning points also store `turn: "left"` or `turn: "right"`.
+  Existing version-1 tracks without this optional field still load with a
+  generic corner instruction. Directions are manually chosen, not inferred.
 - Unknown/missing fields, wrong versions, duplicate library IDs, invalid room
   text, incomplete/degenerate tracks, nonfinite coordinates, coordinates beyond
   ±500 m, more than 500 points and files above 1 MB are rejected.
