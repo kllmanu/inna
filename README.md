@@ -8,3 +8,15 @@ Where conventional navigation systems fail, INNA keeps things simple and acts as
 > In the Vorarlberg dialect (an Alemannic dialect group spoken in western Austria), 
 the word "inna" means "inside" or "in".
 
+## Campus map
+
+After enabling the camera, the U, V and W building map appears below the scene.
+Select **Enable compass** to rotate it with your heading. Compass access requires
+HTTPS (or localhost), a device with compass sensors, and browser permission.
+Hold the phone flat for best accuracy. Without compass readings, the map remains
+north-aligned.
+
+`MAP_NORTH_OFFSET_DEGREES` in [index.ts](./index.ts) sets the clockwise bearing
+of the SVG's top from north. Its current value of 20 degrees is an estimate from
+a north-up Google Maps screenshot, not a surveyed bearing. Refine it on site if
+needed. Screen orientation is accounted for when following the compass.

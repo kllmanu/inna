@@ -156,3 +156,78 @@ async function startCameraExperience() {
 
 root.classList.add('camera-pending');
 cameraButton?.addEventListener('click', () => void startCameraExperience());
+
+interface CompassOrientationEvent extends DeviceOrientationEvent {
+  webkitCompassHeading?: number;
+  webkitCompassAccuracy?: number;
+}
+
+type PermissionDeviceOrientation = typeof DeviceOrientationEvent & {
+  requestPermission?: (absolute?: boolean) => Promise<PermissionState>;
+};
+
+const mapImage = document.querySelector<HTMLImageElement>('#campus-map-image');
+const compassButton = document.querySelector<HTMLButtonElement>('#compass-start');
+const compassStatus = document.querySelector<HTMLElement>('#compass-status');
+// Estimated from the north-up campus screenshot; refine against an on-site bearing.
+const MAP_NORTH_OFFSET_DEGREES = 20;
+let compassTimeout: number | undefined;
+let compassListening = false;
+
+if (mapImage) mapImage.style.transform = `rotate(${MAP_NORTH_OFFSET_DEGREES}deg)`;
+
+function updateCompass(event: CompassOrientationEvent) {
+  let heading: number;
+  if (
+    typeof event.webkitCompassHeading === 'number' &&
+    Number.isFinite(event.webkitCompassHeading) &&
+    (event.webkitCompassAccuracy === undefined || event.webkitCompassAccuracy >= 0)
+  ) {
+    heading = event.webkitCompassHeading;
+  } else if (event.absolute && event.alpha !== null && Number.isFinite(event.alpha)) {
+    heading = 360 - event.alpha;
+  } else {
+    return;
+  }
+
+  const screenAngle = screen.orientation?.angle ?? window.orientation ?? 0;
+  heading = ((heading + screenAngle) % 360 + 360) % 360;
+  if (mapImage) mapImage.style.transform = `rotate(${MAP_NORTH_OFFSET_DEGREES - heading}deg)`;
+  window.clearTimeout(compassTimeout);
+  if (compassStatus) compassStatus.textContent = 'Map follows your heading. Hold your phone flat for best accuracy.';
+  if (compassButton) compassButton.hidden = true;
+}
+
+async function enableCompass() {
+  if (!compassButton || !compassStatus) return;
+  if (!window.isSecureContext || !window.DeviceOrientationEvent) {
+    compassStatus.textContent = 'Compass unavailable. Use HTTPS and a phone with a compass. Map remains north-aligned.';
+    return;
+  }
+
+  compassButton.disabled = true;
+  try {
+    const orientation = window.DeviceOrientationEvent as PermissionDeviceOrientation;
+    if (orientation.requestPermission && await orientation.requestPermission(true) !== 'granted') {
+      compassStatus.textContent = 'Compass access denied. Allow motion and orientation access in your browser settings.';
+      return;
+    }
+    if (!compassListening) {
+      window.addEventListener('deviceorientationabsolute', updateCompass);
+      window.addEventListener('deviceorientation', updateCompass);
+      compassListening = true;
+    }
+    compassStatus.textContent = 'Waiting for compass readings. Hold your phone flat.';
+    window.clearTimeout(compassTimeout);
+    compassTimeout = window.setTimeout(() => {
+      compassStatus.textContent = 'No compass readings received. Check sensor permissions and try again. Map remains north-aligned.';
+    }, 8000);
+  } catch (error) {
+    console.error('Unable to enable compass', error);
+    compassStatus.textContent = 'Unable to enable the compass. Check sensor permissions and try again.';
+  } finally {
+    compassButton.disabled = false;
+  }
+}
+
+compassButton?.addEventListener('click', () => void enableCompass());

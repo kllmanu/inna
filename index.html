@@ -21,6 +21,14 @@
       <button id="camera-start" type="button">Enable camera</button>
     </main>
 
+    <section class="campus-map" aria-label="FHV campus map">
+      <div class="campus-map-stage">
+        <img id="campus-map-image" src="./uvw.svg" alt="Map of the FHV U, V and W buildings" />
+      </div>
+      <p id="compass-status" role="status">North-aligned map. Enable the compass to follow your heading.</p>
+      <button id="compass-start" type="button">Enable compass</button>
+    </section>
+
     <template id="ar-scene-template">
       <a-scene embedded renderer="alpha: true" arjs="sourceType: webcam; debugUIEnabled: false;">
         <a-marker preset="hiro">
