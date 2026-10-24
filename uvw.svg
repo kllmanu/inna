@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="51 56.883 360 471.479">
+  <g transform="matrix(0.780654, 0, 0, 0.780654, -517.354736, -95.975281)" id="building">
+    <path style="fill: none; stroke: rgb(0, 0, 0); stroke-width: 1.28098px;" d="M 728.127 482.101 L 913.242 482.101 L 913.242 365.783 C 913.242 365.783 1004.112 365.783 1003.974 365.783 L 1003.974 781.219 L 1189.202 781.219 L 1189.202 195.958 L 728.05 195.958 L 728.127 482.101 Z"/>
+    <path style="fill: none; stroke: rgb(0, 0, 0);" d="M 913.249 365.769 L 913.249 195.99"/>
+    <path style="fill: none; stroke: rgb(0, 0, 0);" d="M 1004.05 365.841 L 1004.05 195.808"/>
+  </g>
+  <path d="M 183.67 294.82 L 183.671 287.677 L 186.854 290.86 L 187.918 289.797 L 182.917 284.795 L 177.918 289.793 L 178.983 290.858 L 182.166 287.674 L 182.166 294.819 L 183.67 294.82 Z" style="stroke-width: 1;" id="entry-1">
+    <title>arrow</title>
+  </path>
+  <path d="M 257.901 215.899 L 257.902 208.756 L 261.085 211.939 L 262.149 210.876 L 257.148 205.874 L 252.149 210.872 L 253.214 211.937 L 256.397 208.753 L 256.397 215.898 L 257.901 215.899 Z" style="stroke-width: 1; transform-box: fill-box; transform-origin: 50% 50%;" transform="matrix(0, 1, -1, 0, -0.000019, -0.00002)" id="entry-2">
+    <title>arrow</title>
+  </path>
+  <path d="M 311.391 528.362 L 311.392 521.219 L 314.575 524.402 L 315.639 523.339 L 310.638 518.337 L 305.639 523.335 L 306.704 524.4 L 309.887 521.216 L 309.887 528.361 L 311.391 528.362 Z" style="stroke-width: 1; transform-origin: 310.639px 523.349px;" id="entry-3">
+    <title>arrow</title>
+  </path>
+  <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 36px; font-weight: 700; white-space: pre;" id="v" x="107.72" y="228.51">V</text>
+  <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 36px; font-weight: 700; white-space: pre;" x="328.856" y="300.788" id="u">U</text>
+  <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 24px; font-weight: 700; white-space: pre;" x="220.988" y="132.2" id="w">W</text>
+</svg>
