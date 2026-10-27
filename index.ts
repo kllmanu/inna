@@ -29,6 +29,12 @@ const button = (id: string) => $<HTMLButtonElement>(id);
 const input = (id: string) => $<HTMLInputElement | HTMLTextAreaElement>(id);
 const scene = document.querySelector<Scene>('a-scene')!;
 const aframe = window.AFRAME;
+
+// Chrome 156+ exposes WebXR projection layers; three.js then renders into them, but nothing appears in immersive-ar.
+// Removing the method makes three.js fall back to the classic XRWebGLLayer path.
+const binding = (globalThis as { XRWebGLBinding?: { prototype: Record<string, unknown> } }).XRWebGLBinding;
+if (binding) delete binding.prototype.createProjectionLayer;
+
 if (aframe) {
   // Reuse the cylinder + cone arrow, with +X as the canonical direction.
   aframe.registerComponent('direction-arrow', {
