@@ -1,0 +1,68 @@
+---
+pagetitle: "INNA | Indoor navigation with WebXR"
+description: "Record and follow indoor routes with WebXR augmented reality."
+format:
+  revealjs:
+    output-file: readme.html
+    theme: simple
+    embed-resources: true
+    slide-number: true
+    transition: fade
+    auto-play-media: true
+    include-in-header:
+      text: |
+        <style>
+          .reveal { color: #172b39; }
+          .reveal h1, .reveal h2 { color: #172b39; }
+          .reveal .slides section { text-align: left; }
+          .reveal video { display: block; height: 470px; max-width: 100%; margin: 0 auto; border-radius: 16px; }
+          .reveal .demo { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+          .reveal .demo p { font-size: .75em; }
+          .reveal .note { font-size: .5em; color: #526573; }
+        </style>
+---
+
+{{< include ../README.md >}}
+
+## Record a route
+
+::: {.demo}
+Capture the path on site, one corridor segment at a time.
+
+```{=html}
+<video autoplay muted loop playsinline controls data-autoplay preload="metadata" aria-label="Recording an indoor route" data-external="1">
+  <source src="videos/track.mp4" type="video/mp4" data-external="1">
+  Your browser does not support embedded video. <a href="videos/track.mp4">Download the recording demo.</a>
+</video>
+```
+:::
+
+## Walk it back
+
+::: {.demo}
+Follow a saved route from its repeatable starting point.
+
+```{=html}
+<video autoplay muted loop playsinline controls data-autoplay preload="metadata" aria-label="Walking a recorded route" data-external="1">
+  <source src="videos/walk.mp4" type="video/mp4" data-external="1">
+  Your browser does not support embedded video. <a href="videos/walk.mp4">Download the walking demo.</a>
+</video>
+```
+:::
+
+## Follow the AR guide
+
+::: {.demo}
+See visual guidance placed in the space around you.
+
+```{=html}
+<video autoplay muted loop playsinline controls data-autoplay preload="metadata" aria-label="WebXR augmented reality navigation" data-external="1">
+  <source src="videos/ar.mp4" type="video/mp4" data-external="1">
+  Your browser does not support embedded video. <a href="videos/ar.mp4">Download the AR demo.</a>
+</video>
+```
+:::
+
+::: {.note}
+Videos autoplay without sound where your browser allows it. Use the controls to play or pause.
+:::

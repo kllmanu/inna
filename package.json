@@ -6,9 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "test": "node --experimental-strip-types --test tests/*.test.ts",
+    "docs": "quarto render docs --to revealjs",
     "rsync": "rsync -avz --progress dist/ inna:/home/inna/html/",
-	"push": "npm run build && npm run rsync", 
+    "push": "npm run docs && npm run build && npm run rsync",
     "preview": "vite preview"
   },
   "devDependencies": {
