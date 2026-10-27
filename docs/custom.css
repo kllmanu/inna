@@ -1,0 +1,120 @@
+:root {
+  --fhv-blue: #97cff1;
+  --fhv-ink: #18211b;
+  --fhv-background: #f3f5f3;
+  --fhv-muted: #405246;
+  --fhv-focus: #17629a;
+  --r-background-color: var(--fhv-background);
+  --r-main-font: Arial, Helvetica, sans-serif;
+  --r-main-color: var(--fhv-ink);
+  --r-heading-font: Arial, Helvetica, sans-serif;
+  --r-heading-color: var(--fhv-ink);
+  --r-heading-font-weight: 700;
+  --r-heading-text-transform: none;
+  --r-heading-letter-spacing: -.045em;
+  --r-link-color: var(--fhv-focus);
+  --r-link-color-hover: var(--fhv-ink);
+  --r-selection-background-color: var(--fhv-blue);
+  --r-selection-color: var(--fhv-ink);
+}
+
+.fhv-header {
+  position: fixed;
+  inset: 0 0 auto;
+  height: 96px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 4px;
+  padding: 12px 20px;
+  padding-left: calc((100% - var(--slide-width) * var(--slide-scale)) / 2);
+  background: var(--fhv-blue);
+  color: var(--fhv-ink);
+  font-family: Arial, Helvetica, sans-serif;
+  box-sizing: border-box;
+  z-index: 10;
+}
+
+.fhv-header a {
+  color: inherit;
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-decoration: none;
+  line-height: 1;
+}
+
+.fhv-header span {
+  font-size: .9rem;
+  text-align: left;
+}
+
+.reveal {
+  top: 96px;
+  height: calc(100% - 96px);
+}
+
+.reveal .slides section {
+  text-align: left;
+}
+
+.reveal h1 {
+  font-weight: 800;
+  line-height: 1.04;
+}
+
+.reveal h2 {
+  line-height: 1.1;
+}
+
+.reveal p {
+  line-height: 1.55;
+}
+
+.reveal .demo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: center;
+}
+
+.reveal .demo p {
+  font-size: .75em;
+}
+
+.reveal video {
+  display: block;
+  height: 470px;
+  max-width: 100%;
+  margin: 0 auto;
+  border-radius: 8px;
+  background: var(--fhv-ink);
+}
+
+.reveal .note {
+  color: var(--fhv-muted);
+  font-size: .5em;
+}
+
+.reveal .controls {
+  color: var(--fhv-focus);
+}
+
+.reveal .progress {
+  color: var(--fhv-blue);
+}
+
+.reveal .slide-number {
+  padding: 8px 12px;
+  border-radius: 4px;
+  background: var(--fhv-blue);
+  color: var(--fhv-ink);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.reveal :focus-visible,
+.fhv-header :focus-visible {
+  outline: 3px solid var(--fhv-focus);
+  outline-offset: 3px;
+}

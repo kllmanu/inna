@@ -1,26 +1,22 @@
 ---
-title: "INNA"
-subtitle: "Indoor Navigation"
+pagetitle: "INNA | Indoor Navigation"
 format:
   revealjs:
     output-file: readme.html
+    theme: simple
+    css: custom.css
     slide-number: true
     auto-play-media: true
-    include-in-header:
+    include-before-body:
       text: |
-        <style>
-          .reveal { color: #172b39; }
-          .reveal h1, .reveal h2 { color: #172b39; }
-          .reveal .slides section { text-align: left; }
-          .reveal video { display: block; height: 470px; max-width: 100%; margin: 0 auto; border-radius: 16px; }
-          .reveal .demo { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
-          .reveal .demo p { font-size: .75em; }
-          .reveal .note { font-size: .5em; color: #526573; }
-        </style>
+        <header class="fhv-header">
+          <a href="./" aria-label="INNA home">INNA</a>
+          <span>Indoor Navigation</span>
+        </header>
 ---
 
 
-## Record a route
+## 1. Record a route
 
 ::: {.demo}
 Capture the path on site, one corridor segment at a time.
@@ -33,7 +29,7 @@ Capture the path on site, one corridor segment at a time.
 ```
 :::
 
-## Walk it back
+## 2. Walk it back
 
 ::: {.demo}
 Follow a saved route from its repeatable starting point.
@@ -46,7 +42,7 @@ Follow a saved route from its repeatable starting point.
 ```
 :::
 
-## Follow the AR guide
+## AR navigation
 
 ::: {.demo}
 See visual guidance placed in the space around you.
@@ -60,5 +56,5 @@ See visual guidance placed in the space around you.
 :::
 
 ::: {.note}
-Videos autoplay without sound where your browser allows it. Use the controls to play or pause.
+Safari browser on iPhone does not support WebXR so far.
 :::

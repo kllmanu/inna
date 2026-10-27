@@ -5,5 +5,7 @@ videos/
 /docs/.quarto/
 /public/readme.html
 /public/readme_files/
+/public/index_files/
+/public/custom.css
 
 **/*.quarto_ipynb
