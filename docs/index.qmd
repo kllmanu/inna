@@ -1,13 +1,10 @@
 ---
-pagetitle: "INNA | Indoor navigation with WebXR"
-description: "Record and follow indoor routes with WebXR augmented reality."
+title: "INNA"
+subtitle: "Indoor Navigation"
 format:
   revealjs:
     output-file: readme.html
-    theme: simple
-    embed-resources: true
     slide-number: true
-    transition: fade
     auto-play-media: true
     include-in-header:
       text: |
@@ -22,7 +19,6 @@ format:
         </style>
 ---
 
-{{< include ../README.md >}}
 
 ## Record a route
 
